@@ -3,168 +3,251 @@
 
 <head>
 <meta charset="UTF-8">
-<title>AI恋爱军师 V9.1</title>
+<title>AI恋爱分析 V10.2</title>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
 
+/* ===== 全局 ===== */
 body{
     margin:0;
-    font-family: Arial;
-    background:#0f172a;
-    color:white;
+    font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+    background:#f6f8fc;
+    color:#111827;
 }
 
-/* 顶部标题 */
-.header{
-    padding:20px;
-    text-align:center;
-    font-size:20px;
-    font-weight:bold;
-    background:#111827;
-}
-
-/* 主体 */
+/* 容器 */
 .container{
-    max-width:800px;
+    max-width:820px;
     margin:auto;
-    padding:15px;
+    padding:24px;
+}
+
+/* 卡片（白色科技感） */
+.card{
+    background:white;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:14px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.04);
+}
+
+/* 标题 */
+h2{
+    margin:0 0 10px 0;
+    font-size:18px;
+}
+
+/* 小字 */
+.small{
+    font-size:12px;
+    color:#6b7280;
 }
 
 /* 输入框 */
-textarea{
+select, textarea, input{
     width:100%;
-    height:140px;
-    border-radius:12px;
-    border:none;
-    padding:12px;
-    font-size:14px;
+    margin-top:8px;
+    margin-bottom:12px;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #d1d5db;
+    background:#fff;
     outline:none;
+    font-size:14px;
+}
+
+select:focus, textarea:focus, input:focus{
+    border-color:#3b82f6;
+    box-shadow:0 0 0 3px rgba(59,130,246,0.15);
 }
 
 /* 按钮 */
 button{
     width:100%;
-    margin-top:10px;
     padding:12px;
     border:none;
     border-radius:10px;
-    background:#4f46e5;
+    background:#2563eb;
     color:white;
-    font-size:16px;
+    font-weight:500;
     cursor:pointer;
+    transition:0.2s;
 }
 
-/* 聊天气泡 */
-.chat-box{
-    margin-top:20px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+button:hover{
+    background:#1d4ed8;
 }
 
-.msg{
-    padding:12px;
-    border-radius:12px;
-    max-width:90%;
+/* 输出 */
+.result{
     white-space:pre-wrap;
-    line-height:1.5;
+    line-height:1.6;
+    font-size:14px;
 }
 
-/* 用户 */
-.user{
-    background:#334155;
-    align-self:flex-end;
+/* 分割线 */
+.line{
+    height:1px;
+    background:#eef2f7;
+    margin:12px 0;
 }
 
-/* AI */
-.ai{
-    background:#1e293b;
-    align-self:flex-start;
-}
-
-/* 提示 */
-.tip{
+/* 标签感 */
+.tag{
+    display:inline-block;
+    padding:4px 8px;
     font-size:12px;
-    color:#94a3b8;
-    margin-top:8px;
+    background:#eff6ff;
+    color:#2563eb;
+    border-radius:6px;
+    margin-bottom:8px;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<div class="header">💘 AI恋爱军师 V9.1</div>
-
 <div class="container">
 
-<textarea id="text" placeholder="把你和她的聊天内容粘贴在这里..."></textarea>
+<!-- 顶部 -->
+<div class="card">
+<div class="tag">AI恋爱分析工具</div>
+<h2>💘 V10.2 智能恋爱军师</h2>
+<div class="small">上传截图 → 自动识别 → AI分析 → 回复建议</div>
+</div>
 
-<button onclick="run()">让AI帮我分析 + 给回复</button>
+<!-- 基本信息 -->
+<div class="card">
 
-<div class="tip">每日免费5次（测试版）</div>
+<h2>基础信息</h2>
 
-<div class="chat-box" id="chat"></div>
+<div class="small">关系</div>
+<select id="r1">
+<option>刚认识</option>
+<option>普通朋友</option>
+<option>暧昧</option>
+<option>正在追</option>
+<option>冷淡期</option>
+</select>
+
+<div class="small">时间</div>
+<select id="r2">
+<option>1周内</option>
+<option>1个月</option>
+<option>3个月</option>
+<option>半年以上</option>
+</select>
+
+<div class="small">状态</div>
+<select id="r3">
+<option>正常</option>
+<option>变冷</option>
+<option>忽冷忽热</option>
+<option>主动减少</option>
+</select>
+
+</div>
+
+<!-- 上传截图 -->
+<div class="card">
+
+<h2>聊天截图</h2>
+<div class="small">上传微信/聊天截图 → 一键识别</div>
+
+<input type="file" id="img" accept="image/*">
+
+<button onclick="ocr()">识别截图</button>
+
+<div class="line"></div>
+
+<textarea id="text" placeholder="识别结果会自动填入这里..."></textarea>
+
+</div>
+
+<!-- AI分析 -->
+<div class="card">
+
+<button onclick="run()">开始AI分析（每日5次）</button>
+
+<div class="line"></div>
+
+<div class="result" id="result">等待输入...</div>
+
+</div>
 
 </div>
 
 <script>
 
-let store = JSON.parse(localStorage.getItem("v91") || "{}");
+let data = JSON.parse(localStorage.getItem("v10") || "{}");
 
 function today(){
     return new Date().toDateString();
 }
 
-function checkLimit(){
-    if(store.date !== today()){
-        store.date = today();
-        store.count = 0;
+function limit(){
+    if(data.date !== today()){
+        data.date = today();
+        data.count = 0;
     }
-    if(!store.count) store.count = 0;
+    if(!data.count) data.count = 0;
 }
 
-function addMsg(text, type){
-    let div = document.createElement("div");
-    div.className = "msg " + type;
-    div.innerText = text;
-    document.getElementById("chat").appendChild(div);
+async function ocr(){
+
+    let file = document.getElementById("img").files[0];
+
+    if(!file){
+        alert("请先上传截图");
+        return;
+    }
+
+    result.innerText = "正在识别截图...";
+
+    const { data: { text } } =
+        await Tesseract.recognize(file, 'chi_sim+eng');
+
+    document.getElementById("text").value = text;
+
+    result.innerText = "识别完成，可以开始分析";
 }
 
 async function run(){
 
-    checkLimit();
+    limit();
 
-    if(store.count >= 5){
-        alert("今日次数已用完（5次/天）");
+    if(data.count >= 5){
+        alert("今日次数已用完，请明天再来或升级会员");
         return;
     }
 
-    let text = document.getElementById("text").value;
+    let text =
+`关系：${r1.value}
+时间：${r2.value}
+状态：${r3.value}
 
-    if(!text){
-        alert("请输入聊天内容");
-        return;
-    }
+聊天内容：
+${document.getElementById("text").value}`;
 
-    addMsg(text, "user");
+    result.innerText = "AI分析中...";
 
-    addMsg("AI分析中，请稍等...", "ai");
-
-    const res = await fetch("/api/analyze", {
+    const res = await fetch("/api/analyze",{
         method:"POST",
-        headers:{
-            "Content-Type":"application/json"
-        },
-        body: JSON.stringify({ text })
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({text})
     });
 
-    const data = await res.json();
+    const json = await res.json();
 
-    store.count++;
-    localStorage.setItem("v91", JSON.stringify(store));
+    data.count++;
+    localStorage.setItem("v10", JSON.stringify(data));
 
-    addMsg(data.result, "ai");
+    result.innerText = json.result;
 }
 
 </script>
