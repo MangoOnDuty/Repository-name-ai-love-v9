@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI恋爱军师 V9</title>
+</head>
+
+<body>
+
+<h2>AI恋爱军师 V9</h2>
+
+<textarea id="text" style="width:100%;height:200px;"></textarea>
+
+<br><br>
+
+<button onclick="run()">分析（每日5次）</button>
+
+<pre id="result"></pre>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("v9") || "{}");
+
+function checkLimit(){
+    let today = new Date().toDateString();
+    if(data.date !== today){
+        data.date = today;
+        data.count = 0;
+    }
+}
+
+async function run(){
+
+    checkLimit();
+
+    if(!data.count) data.count = 0;
+
+    if(data.count >= 5){
+        alert("今日5次已用完");
+        return;
+    }
+
+    let text = document.getElementById("text").value;
+
+    if(!text){
+        alert("请输入聊天内容");
+        return;
+    }
+
+    document.getElementById("result").innerText = "AI分析中...";
+
+    const res = await fetch("/api/analyze", {
+        method:"POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ text })
+    });
+
+    const json = await res.json();
+
+    data.count++;
+    localStorage.setItem("v9", JSON.stringify(data));
+
+    document.getElementById("result").innerText = json.result;
+}
+
+</script>
+
+</body>
+</html>
