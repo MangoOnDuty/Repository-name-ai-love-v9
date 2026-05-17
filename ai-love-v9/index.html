@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>AI恋爱军师 V9</title>
+</head>
+
+<body>
+
+<h2>AI恋爱军师 V9</h2>
+
+<textarea id="text" style="width:100%;height:200px;"></textarea>
+
+<br><br>
+
+<button onclick="run()">分析</button>
+
+<pre id="result"></pre>
+
+<script>
+
+let count = localStorage.getItem("count") || 0;
+
+async function run(){
+
+    if(count >= 5){
+        alert("今日5次已用完");
+        return;
+    }
+
+    let text = document.getElementById("text").value;
+
+    const res = await fetch("/api/analyze", {
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body: JSON.stringify({ text })
+    });
+
+    const data = await res.json();
+
+    count++;
+    localStorage.setItem("count", count);
+
+    document.getElementById("result").innerText = data.result;
+}
+
+</script>
+
+</body>
+</html>
